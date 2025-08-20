@@ -31,20 +31,34 @@ Rows contain: Folder, Evtx, Logged, AccountName, ObjectName, Message.
 
 ### Single-thread (PS 5.1)
 
-# Last 7 days, 4663 from Security provider, path prefix, include/exclude message patterns
-# Outputs CSV and writes to pipeline
-.\ScanEvtx.ps1 -Root C:\Logs -EventId 4663 -Prefix "C:\\Sensitive" -ProviderName "Microsoft-Windows-Security-Auditing" -StartTime (Get-Date).AddDays(-7) -IncludePattern "DELETE|WRITE" -ExcludePattern "System Volume Information" -OutputCsv .\matches.csv -LogFile .\scan.log -PassThru
+Prefix match with logging, time window, and message filters (writes CSV and to pipeline):
 
-# Use substring match instead of prefix
-.\ScanEvtx.ps1 -Root C:\Logs -EventId 4663 -Contains "\\Reports\\FY25" -NoCsv -PassThru | Select-Object -First 10
+```powershell
+.\n+ScanEvtx.ps1 -Root 'C:\Logs' -EventId 4663 -Prefix 'C:\Sensitive' -ProviderName 'Microsoft-Windows-Security-Auditing' -StartTime (Get-Date).AddDays(-7) -IncludePattern 'DELETE|WRITE' -ExcludePattern 'System Volume Information' -OutputCsv '.\matches.csv' -LogFile '.\scan.log' -PassThru
+```
+
+Substring match, pipe-only (no CSV):
+
+```powershell
+.
+\ScanEvtx.ps1 -Root 'C:\Logs' -EventId 4663 -Contains '\\Reports\\FY25' -NoCsv -PassThru | Select-Object -First 10
+```
 
 ### Parallel (PS 7+)
 
-# Parallel with throttle and temp directory override using prefix
-.\ScanEvtxParallel.ps1 -Root C:\Logs -EventId 4663 -Prefix "C:\\Sensitive" -StartTime (Get-Date).AddDays(-3) -ThrottleLimit 8 -TempDir C:\Temp\evtx_parts -OutputCsv .\matches.csv -LogFile .\scan_parallel.log
+Parallel run with throttle and temp directory using prefix filter:
 
-# Parallel, substring match pipe-only
-.\ScanEvtxParallel.ps1 -Root C:\Logs -EventId 4663 -Contains "\\.xlsx$" -NoCsv -PassThru | Export-Csv .\pipe_only.csv -NoTypeInformation -Encoding UTF8
+```powershell
+.
+\ScanEvtxParallel.ps1 -Root 'C:\Logs' -EventId 4663 -Prefix 'C:\Sensitive' -StartTime (Get-Date).AddDays(-3) -ThrottleLimit 8 -TempDir 'C:\Temp\evtx_parts' -OutputCsv '.\matches.csv' -LogFile '.\scan_parallel.log'
+```
+
+Parallel, substring match pipe-only:
+
+```powershell
+.
+\ScanEvtxParallel.ps1 -Root 'C:\Logs' -EventId 4663 -Contains '\\.xlsx$' -NoCsv -PassThru | Export-Csv '.\pipe_only.csv' -NoTypeInformation -Encoding UTF8
+```
 
 ## Notes
 - These scripts sanitize XML to avoid crashes on illegal characters in ObjectName.
