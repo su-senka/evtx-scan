@@ -61,6 +61,3 @@ ScanEvtxParallel.ps1 -Root 'C:\Logs' -EventId 4663 -Contains '\\.xlsx$' -NoCsv -
 - These scripts sanitize XML to avoid crashes on illegal characters in ObjectName.
 - ProviderName, StartTime, EndTime are applied via the Get-WinEvent filter hashtable for speed.
 - Message filters use the formatted description when available, otherwise sanitized XML text.
-
-## License
-Pick a permissive license (MIT/Apache-2.0) before publishing.
